@@ -21,8 +21,23 @@ public class HubSpot {
 
     private final String apiKey;
 
-    public HubSpot(String apiKey) {
+    private HubSpot(String apiKey) {
         this.apiKey = apiKey;
+    }
+
+    public static HubSpot fromEnvironment(String envName) {
+        String key = System.getenv(envName);
+        if (key.isEmpty()) {
+            throw new IllegalStateException(envName + " not set");
+        }
+        return new HubSpot(key);
+    }
+
+    public static HubSpot fromKey(String key) {
+        if (key.isEmpty()) {
+            throw new IllegalStateException("key was null or empty");
+        }
+        return new HubSpot(key);
     }
 
     public Iterable<Company> getCompanies() {
