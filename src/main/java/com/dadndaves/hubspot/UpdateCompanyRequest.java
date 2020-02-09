@@ -24,13 +24,13 @@ public class UpdateCompanyRequest {
             this.value = value;
         }
 
-        public Property fromDate(String name, Date value) {
+        public static Property fromDate(String name, Date value) {
             long time = value.getTime();
             value = new Date(time - time % (24 * 60 * 60 * 1000));
             return new Property(name, Long.toString(value.getTime()));
         }
 
-        public Property fromDouble(String name, Double value) {
+        public static Property fromDouble(String name, Double value) {
             return new Property(name, Double.toString(value));
         }
     }
