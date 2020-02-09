@@ -1,6 +1,7 @@
 package com.dadndaves.hubspot;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonAppend;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -21,6 +22,16 @@ public class UpdateCompanyRequest {
                         @JsonProperty("value") String value) {
             this.name = name;
             this.value = value;
+        }
+
+        public Property fromDate(String name, Date value) {
+            long time = value.getTime();
+            value = new Date(time - time % (24 * 60 * 60 * 1000));
+            return new Property(name, Long.toString(value.getTime()));
+        }
+
+        public Property fromDouble(String name, Double value) {
+            return new Property(name, Double.toString(value));
         }
     }
 }
