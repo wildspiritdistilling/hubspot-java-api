@@ -23,6 +23,11 @@ public final class Company {
         this.properties = properties;
     }
 
+    public String getProperty(String name) {
+        Property property = this.properties.get(name);
+        return property != null ? property.value : null;
+    }
+
     public static final class Property {
         public final String value;
         public final String sourceId;
