@@ -1,5 +1,6 @@
 package com.dadndaves.hubspot;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import okhttp3.OkHttpClient;
@@ -28,11 +29,40 @@ public class HubSpot {
         return () -> new CompanyIteratorImpl(client, apiKey);
     }
 
-    public Company updateCompany(long companyId, List<UpdateCompanyRequest.Property> properties) throws Exception {
+    public Company createCompany(List<UpdateCompanyRequest.Property> properties) {
         UpdateCompanyRequest req = new UpdateCompanyRequest(properties);
-        System.out.println(mapper.writeValueAsString(req));
+        byte[] body;
+        try {
+            body = mapper.writeValueAsBytes(req);
+        } catch (JsonProcessingException e) {
+            throw new HubSpotException(e);
+        }
         Request request = new Request.Builder()
-                .put(RequestBody.create(mapper.writeValueAsBytes(req), okhttp3.MediaType.parse("application/json")))
+                .post(RequestBody.create(body, okhttp3.MediaType.parse("application/json")))
+                .url(String.format("https://api.hubapi.com/companies/v2/companies?hapikey=%s", apiKey))
+                .build();
+        try (Response response = client.newCall(request).execute()) {
+            if (response.code() != 200) {
+                // TOODO: map error body
+                // {"validationResults":[{"isValid":false,"message":"1579179660000 is at 13:1:0.0 UTC, not midnight!","error":"INVALID_DATE","name":"last_purchase"}],"status":"error","message":"Property values were not valid","correlationId":"079df615-35f9-46ed-80f9-d5930ce5c48d","requestId":"e942fbd1-1236-4c1d-b59c-ff44c89bf1c5"}
+                throw new HubSpotException("Error " + response.code() + " " + response.message());
+            }
+            return mapper.readValue(response.body().bytes(), Company.class);
+        } catch (Throwable e) {
+            throw new HubSpotException(e);
+        }
+    }
+
+    public Company updateCompany(long companyId, List<UpdateCompanyRequest.Property> properties) {
+        UpdateCompanyRequest req = new UpdateCompanyRequest(properties);
+        byte[] body;
+        try {
+            body = mapper.writeValueAsBytes(req);
+        } catch (JsonProcessingException e) {
+            throw new HubSpotException(e);
+        }
+        Request request = new Request.Builder()
+                .put(RequestBody.create(body, okhttp3.MediaType.parse("application/json")))
                 .url(String.format("https://api.hubapi.com/companies/v2/companies/%s?hapikey=%s", companyId, apiKey))
                 .build();
         try (Response response = client.newCall(request).execute()) {
@@ -43,6 +73,8 @@ public class HubSpot {
                 throw new HubSpotException("Error " + response.code() + " " + response.message());
             }
             return mapper.readValue(response.body().bytes(), Company.class);
+        } catch (Throwable e) {
+            throw new HubSpotException(e);
         }
     }
 
@@ -92,10 +124,10 @@ public class HubSpot {
                     offset = collection.offset;
                     companies = collection.companies.iterator();
                 } catch (IOException e) {
-                    throw new RuntimeException(e);
+                    throw new HubSpotException(e);
                 }
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                throw new HubSpotException(e);
             }
         }
 
