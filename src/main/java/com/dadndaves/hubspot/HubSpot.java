@@ -58,12 +58,15 @@ public class HubSpot {
                 .build();
         try (Response response = client.newCall(request).execute()) {
             if (response.code() != 200) {
-                // TOODO: map error body
+                // TOODO: map error body and attach to exception
                 // {"validationResults":[{"isValid":false,"message":"1579179660000 is at 13:1:0.0 UTC, not midnight!","error":"INVALID_DATE","name":"last_purchase"}],"status":"error","message":"Property values were not valid","correlationId":"079df615-35f9-46ed-80f9-d5930ce5c48d","requestId":"e942fbd1-1236-4c1d-b59c-ff44c89bf1c5"}
-                throw new HubSpotException("Error " + response.code() + " " + response.message());
+                throw new HubSpotException("Error " + response.code() + " " + response.message() + " " + response.body().string());
             }
             return mapper.readValue(response.body().bytes(), Company.class);
         } catch (Throwable e) {
+            if (e instanceof HubSpotException) {
+                throw (HubSpotException)e;
+            }
             throw new HubSpotException(e);
         }
     }
