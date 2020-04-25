@@ -43,6 +43,12 @@
         </dependency>
     </dependencies>
 
+    <scm>
+        <connection>scm:git:git@github.com:wildspiritdistilling/hubspot-java-api.git</connection>
+        <developerConnection>scm:git:git@github.com:wildspiritdistilling/hubspot-java-api.git</developerConnection>
+        <tag>master</tag>
+    </scm>
+
     <distributionManagement>
         <repository>
             <id>bintray-i386-maven</id>

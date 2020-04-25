@@ -35,14 +35,14 @@ public class HubSpot {
 
     public static HubSpot fromEnvironment(String envName) {
         String key = System.getenv(envName);
-        if (key.isEmpty()) {
+        if (key == null || key.isEmpty()) {
             throw new IllegalStateException(envName + " not set");
         }
         return new HubSpot(key);
     }
 
     public static HubSpot fromKey(String key) {
-        if (key.isEmpty()) {
+        if (key == null || key.isEmpty()) {
             throw new IllegalStateException("key was null or empty");
         }
         return new HubSpot(key);
