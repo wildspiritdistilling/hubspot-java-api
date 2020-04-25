@@ -1,4 +1,4 @@
-package com.dadndaves.hubspot;
+package com.wildspirit.hubspot.company;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;

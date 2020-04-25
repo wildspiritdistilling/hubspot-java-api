@@ -1,4 +1,4 @@
-package com.dadndaves.hubspot;
+package com.wildspirit.hubspot.company;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonAppend;

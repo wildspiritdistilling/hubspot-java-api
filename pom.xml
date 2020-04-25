@@ -42,4 +42,12 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <distributionManagement>
+        <repository>
+            <id>bintray-i386-maven</id>
+            <name>i386-maven</name>
+            <url>https://api.bintray.com/maven/i386/maven/hubspot-java-api/;publish=1</url>
+        </repository>
+    </distributionManagement>
 </project>

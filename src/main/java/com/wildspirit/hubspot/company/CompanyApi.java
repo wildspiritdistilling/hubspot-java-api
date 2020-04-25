@@ -1,8 +1,8 @@
-package com.dadndaves.hubspot;
+package com.wildspirit.hubspot.company;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.wildspirit.hubspot.HubSpotException;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
@@ -11,40 +11,27 @@ import okhttp3.Response;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Spliterator;
+import java.util.Spliterators;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
-public class HubSpot {
-
-    private static final ObjectMapper mapper = new ObjectMapper()
-            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-
-    private final OkHttpClient client = new OkHttpClient();
-
+public final class CompanyApi {
+    private final OkHttpClient client;
     private final String apiKey;
+    private final ObjectMapper mapper;
 
-    private HubSpot(String apiKey) {
+    public CompanyApi(OkHttpClient client, String apiKey, ObjectMapper mapper) {
+        this.client = client;
         this.apiKey = apiKey;
+        this.mapper = mapper;
     }
 
-    public static HubSpot fromEnvironment(String envName) {
-        String key = System.getenv(envName);
-        if (key.isEmpty()) {
-            throw new IllegalStateException(envName + " not set");
-        }
-        return new HubSpot(key);
+    public Stream<Company> all() {
+        return StreamSupport.stream(Spliterators.spliteratorUnknownSize(new CompanyIteratorImpl(client, apiKey, mapper), Spliterator.ORDERED | Spliterator.NONNULL), false);
     }
 
-    public static HubSpot fromKey(String key) {
-        if (key.isEmpty()) {
-            throw new IllegalStateException("key was null or empty");
-        }
-        return new HubSpot(key);
-    }
-
-    public Iterable<Company> getCompanies() {
-        return () -> new CompanyIteratorImpl(client, apiKey);
-    }
-
-    public Company createCompany(List<UpdateCompanyRequest.Property> properties) {
+    public Company create(List<UpdateCompanyRequest.Property> properties) {
         UpdateCompanyRequest req = new UpdateCompanyRequest(properties);
         byte[] body;
         try {
@@ -71,7 +58,7 @@ public class HubSpot {
         }
     }
 
-    public Company updateCompany(long companyId, List<UpdateCompanyRequest.Property> properties) {
+    public Company update(long companyId, List<UpdateCompanyRequest.Property> properties) {
         UpdateCompanyRequest req = new UpdateCompanyRequest(properties);
         byte[] body;
         try {
@@ -104,10 +91,12 @@ public class HubSpot {
 
         private final OkHttpClient client;
         private final String apiKey;
+        private final ObjectMapper mapper;
 
-        CompanyIteratorImpl(OkHttpClient client, String apiKey) {
+        CompanyIteratorImpl(OkHttpClient client, String apiKey, ObjectMapper mapper) {
             this.client = client;
             this.apiKey = apiKey;
+            this.mapper = mapper;
         }
 
         @Override

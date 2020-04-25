@@ -1,4 +1,4 @@
-package com.dadndaves.hubspot;
+package com.wildspirit.hubspot;
 
 public class HubSpotException extends RuntimeException {
     public HubSpotException() {
