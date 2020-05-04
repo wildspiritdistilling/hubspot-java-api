@@ -9,10 +9,7 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 import java.io.IOException;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Spliterator;
-import java.util.Spliterators;
+import java.util.*;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -28,7 +25,11 @@ public final class CompanyApi {
     }
 
     public Stream<Company> all() {
-        return StreamSupport.stream(Spliterators.spliteratorUnknownSize(new CompanyIteratorImpl(client, apiKey, mapper), Spliterator.ORDERED | Spliterator.NONNULL), false);
+        return all(new String[] { "name" });
+    }
+
+    public Stream<Company> all(String[] properties) {
+        return StreamSupport.stream(Spliterators.spliteratorUnknownSize(new CompanyIteratorImpl(client, apiKey, mapper, properties), Spliterator.ORDERED | Spliterator.NONNULL), false);
     }
 
     public Company create(List<UpdateCompanyRequest.Property> properties) {
@@ -92,11 +93,17 @@ public final class CompanyApi {
         private final OkHttpClient client;
         private final String apiKey;
         private final ObjectMapper mapper;
+        private final String properties;
 
-        CompanyIteratorImpl(OkHttpClient client, String apiKey, ObjectMapper mapper) {
+        CompanyIteratorImpl(OkHttpClient client, String apiKey, ObjectMapper mapper, String[] properties) {
             this.client = client;
             this.apiKey = apiKey;
             this.mapper = mapper;
+            StringJoiner joiner = new StringJoiner("&");
+            for (String s : properties) {
+                joiner.add("properties=" + s);
+            }
+            this.properties = joiner.toString();
         }
 
         @Override
@@ -111,7 +118,7 @@ public final class CompanyApi {
 
         private void nextPage() {
 
-            String url = String.format("https://api.hubapi.com/companies/v2/companies/paged?hapikey=%s&properties=name", apiKey);
+            String url = String.format("https://api.hubapi.com/companies/v2/companies/paged?hapikey=%s&%s", apiKey, properties);
             if (offset != null) {
                 url = String.format(url + "&offset=%s", offset);
             }
