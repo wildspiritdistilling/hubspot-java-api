@@ -2,15 +2,16 @@ package com.wildspirit.hubspot;
 
 import com.wildspirit.hubspot.company.Company;
 import com.wildspirit.hubspot.company.UpdateCompanyRequest;
+import com.wildspirit.hubspot.contact.GetContactsRequest;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class HubSpotTest {
+public class CompanyApiTest {
 
-    private HubSpot hubSpot = HubSpot.fromEnvironment("HUBSPOT_TEST_KEY");
+    private final HubSpot hubSpot = HubSpot.fromEnvironment("HUBSPOT_TEST_KEY");
 
     @Test
     public void testIterateThroughCompaniesWithoutError() {

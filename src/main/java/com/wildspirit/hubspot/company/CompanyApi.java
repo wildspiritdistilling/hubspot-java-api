@@ -3,6 +3,9 @@ package com.wildspirit.hubspot.company;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wildspirit.hubspot.HubSpotException;
+import com.wildspirit.hubspot.contact.Contact;
+import com.wildspirit.hubspot.contact.ContactIteratorImpl;
+import com.wildspirit.hubspot.contact.GetContactsRequest;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
@@ -82,6 +85,12 @@ public final class CompanyApi {
         } catch (Throwable e) {
             throw new HubSpotException(e);
         }
+    }
+
+    public Stream<Contact> associatedContacts(long companyId) {
+        String url = String.format("https://api.hubapi.com/companies/v2/companies/%s/contacts/?hapikey=%s", companyId, apiKey);
+        final ContactIteratorImpl iterator = new ContactIteratorImpl(url, client, apiKey, mapper, new GetContactsRequest(companyId, null, null, null, false, 100));
+        return StreamSupport.stream(Spliterators.spliteratorUnknownSize(iterator, Spliterator.ORDERED | Spliterator.NONNULL), false);
     }
 
     private static class CompanyIteratorImpl implements Iterator<Company> {
