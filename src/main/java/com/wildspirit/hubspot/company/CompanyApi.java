@@ -41,7 +41,7 @@ public final class CompanyApi {
             throw new HubSpotException(e);
         }
         Request request = new Request.Builder()
-                .post(RequestBody.create(body, okhttp3.MediaType.parse("application/json")))
+                .post(RequestBody.create(okhttp3.MediaType.parse("application/json"), body))
                 .url(String.format("https://api.hubapi.com/companies/v2/companies?hapikey=%s", apiKey))
                 .build();
         try (Response response = client.newCall(request).execute()) {
@@ -68,7 +68,7 @@ public final class CompanyApi {
             throw new HubSpotException(e);
         }
         Request request = new Request.Builder()
-                .put(RequestBody.create(body, okhttp3.MediaType.parse("application/json")))
+                .put(RequestBody.create(okhttp3.MediaType.parse("application/json"), body))
                 .url(String.format("https://api.hubapi.com/companies/v2/companies/%s?hapikey=%s", companyId, apiKey))
                 .build();
         try (Response response = client.newCall(request).execute()) {
