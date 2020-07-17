@@ -2,16 +2,14 @@ package com.wildspirit.hubspot.common;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public abstract class CollectionResponse {
-    @JsonProperty("has-more")
-    public final boolean hasMore;
+import java.util.List;
 
-    @JsonProperty("offset")
-    public final String offset;
+public abstract class CollectionResponse<R> {
+    public final List<R> results;
+    public final Paging paging;
 
-    public CollectionResponse(boolean hasMore, String offset) {
-        this.hasMore = hasMore;
-        this.offset = offset;
+    public CollectionResponse(List<R> results, @JsonProperty("paging") Paging paging) {
+        this.results = results;
+        this.paging = paging;
     }
-
 }

@@ -1,12 +1,12 @@
 package com.wildspirit.hubspot;
 
-import com.wildspirit.hubspot.company.Company;
-import com.wildspirit.hubspot.company.UpdateCompanyRequest;
+import com.wildspirit.hubspot.companies.Company;
+import com.wildspirit.hubspot.companies.CompanyApi;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 public class HubSpotTest {
 
@@ -14,40 +14,40 @@ public class HubSpotTest {
 
     @Test
     public void testIterateThroughCompaniesWithoutError() {
-        hubSpot.companies().all().forEach(company -> {
+        hubSpot.companies().all(new CompanyApi.GetCompaniesRequest(null)).forEach(company -> {
             Assert.assertNotNull(company);
-            System.out.println(company.properties.get("name").value);
+            System.out.println(company.properties.get("name"));
         });
     }
 
     @Test
     public void testCreateCompany() {
-        List<UpdateCompanyRequest.Property> properties = new ArrayList<>();
+        Map<String, Object> properties = new HashMap<>();
         String name = "Hello World " + System.currentTimeMillis();
-        properties.add(new UpdateCompanyRequest.Property("name", name));
-        properties.add(new UpdateCompanyRequest.Property("phone", "0414251133"));
-        Company company = hubSpot.companies().create(properties);
+        properties.put("name", name);
+        properties.put("phone", "0414251133");
+        Company company = hubSpot.companies().create(new CompanyApi.CreateCompanyRequest(properties));
         Assert.assertNotNull(company);
-        Assert.assertEquals(name, company.getProperty("name"));
-        Assert.assertEquals("0414251133", company.getProperty("phone"));
+        Assert.assertEquals(name, company.properties.get("name"));
+        Assert.assertEquals("0414251133", company.properties.get("phone"));
     }
 
     @Test
     public void testUpdateCompany() {
         // Create the company
-        List<UpdateCompanyRequest.Property> properties = new ArrayList<>();
+        Map<String, Object> properties = new HashMap<>();
         String name = "Hello World " + System.currentTimeMillis();
-        properties.add(new UpdateCompanyRequest.Property("name", name));
-        properties.add(new UpdateCompanyRequest.Property("phone", "0414251133"));
-        Company createdCompany = hubSpot.companies().create(properties);
-        Assert.assertNotNull(createdCompany);
-        Assert.assertEquals(name, createdCompany.getProperty("name"));
-        Assert.assertEquals("0414251133", createdCompany.getProperty("phone"));
+        properties.put("name", name);
+        properties.put("phone", "0414251133");
+        Company company = hubSpot.companies().create(new CompanyApi.CreateCompanyRequest(properties));
+        Assert.assertNotNull(company);
+        Assert.assertEquals(name, company.properties.get("name"));
+        Assert.assertEquals("0414251133", company.properties.get("phone"));
         // Update the company
-        List<UpdateCompanyRequest.Property> updateProperties = new ArrayList<>();
-        updateProperties.add(new UpdateCompanyRequest.Property("phone", "020414251133"));
-        Company updatedCompany = hubSpot.companies().update(createdCompany.companyId, updateProperties);
-        Assert.assertEquals(createdCompany.companyId, updatedCompany.companyId);
-        Assert.assertEquals("020414251133", updatedCompany.getProperty("phone"));
+        Map<String, Object> updateProperties = new HashMap<>();
+        updateProperties.put("phone", "020414251133");
+        Company updatedCompany = hubSpot.companies().update(new CompanyApi.UpdateCompanyRequest(company.id, updateProperties));
+        Assert.assertEquals(company.id, updatedCompany.id);
+        Assert.assertEquals("020414251133", updatedCompany.properties.get("phone"));
     }
 }
