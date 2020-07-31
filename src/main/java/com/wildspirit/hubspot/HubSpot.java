@@ -1,26 +1,9 @@
 package com.wildspirit.hubspot;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.wildspirit.hubspot.associations.AssociationsApi;
-import com.wildspirit.hubspot.company.CompaniesCollection;
-import com.wildspirit.hubspot.company.Company;
-import com.wildspirit.hubspot.company.CompanyApi;
-import com.wildspirit.hubspot.company.UpdateCompanyRequest;
-import com.wildspirit.hubspot.contact.ContactApi;
+import com.wildspirit.hubspot.companies.CompanyApi;
 import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
-
-import java.io.IOException;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Spliterator;
-import java.util.Spliterators;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 public class HubSpot {
 
@@ -52,13 +35,5 @@ public class HubSpot {
 
     public CompanyApi companies() {
         return new CompanyApi(client, apiKey, mapper);
-    }
-
-    public ContactApi contacts() {
-        return new ContactApi(client, apiKey, mapper);
-    }
-
-    public AssociationsApi crmAssociations() {
-        return new AssociationsApi(client, apiKey, mapper);
     }
 }
