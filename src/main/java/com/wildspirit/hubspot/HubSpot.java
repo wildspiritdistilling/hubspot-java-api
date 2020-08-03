@@ -2,7 +2,9 @@ package com.wildspirit.hubspot;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.wildspirit.hubspot.associations.AssociationsApi;
 import com.wildspirit.hubspot.companies.CompanyApi;
+import com.wildspirit.hubspot.contact.ContactApi;
 import okhttp3.OkHttpClient;
 
 public class HubSpot {
@@ -35,5 +37,13 @@ public class HubSpot {
 
     public CompanyApi companies() {
         return new CompanyApi(client, apiKey, mapper);
+    }
+
+    public ContactApi contacts() {
+        return new ContactApi(client, apiKey, mapper);
+    }
+
+    public AssociationsApi associations() {
+        return new AssociationsApi(client, apiKey, mapper);
     }
 }

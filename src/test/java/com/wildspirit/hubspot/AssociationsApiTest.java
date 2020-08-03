@@ -1,16 +1,17 @@
 package com.wildspirit.hubspot;
 
 import com.wildspirit.hubspot.associations.AssociateRequest;
-import com.wildspirit.hubspot.company.Company;
-import com.wildspirit.hubspot.company.UpdateCompanyRequest;
+import com.wildspirit.hubspot.companies.Company;
+import com.wildspirit.hubspot.companies.CompanyApi;
 import com.wildspirit.hubspot.contact.Contact;
-import com.wildspirit.hubspot.contact.CreateContactRequest;
+import com.wildspirit.hubspot.contact.ContactApi;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.junit.Assert.fail;
 
 public class AssociationsApiTest {
     private final HubSpot hubSpot = HubSpot.fromEnvironment("HUBSPOT_TEST_KEY");
@@ -18,35 +19,38 @@ public class AssociationsApiTest {
     @Test
     public void associateContactWithCompany() {
         // Create a company
-        List<UpdateCompanyRequest.Property> properties = new ArrayList<>();
+        Map<String, Object> properties = new HashMap<>();
         String name = "Hello World " + System.currentTimeMillis();
-        properties.add(new UpdateCompanyRequest.Property("name", name));
-        properties.add(new UpdateCompanyRequest.Property("phone", "0414251133"));
-        Company company = hubSpot.companies().create(properties);
+        properties.put("name", name);
+        properties.put("phone", "0414251133");
+        Company company = hubSpot.companies().create(new CompanyApi.CreateCompanyRequest(properties));
         Assert.assertNotNull(company);
-        Assert.assertEquals(name, company.getProperty("name"));
-        Assert.assertEquals("0414251133", company.getProperty("phone"));
+        Assert.assertEquals(name, company.properties.get("name"));
+        Assert.assertEquals("0414251133", company.properties.get("phone"));
         // Create the contact
         final String contactFirstName = "bob" + System.currentTimeMillis();
         final String contactLastName = "mcbob" + System.currentTimeMillis();
-        Contact contact = hubSpot.contacts().create(new CreateContactRequest.Builder()
+        Contact contact = hubSpot.contacts().create(new ContactApi.CreateContactRequest.Builder()
                 .addProperty("firstname", contactFirstName)
                 .addProperty("lastname", contactLastName).build()
         );
         Assert.assertEquals(contactFirstName, contact.properties.get("firstname").value);
         Assert.assertEquals(contactLastName, contact.properties.get("lastname").value);
         // Associate the contact with the company
-        hubSpot.crmAssociations().associate(
+        hubSpot.associations().associate(
                 new AssociateRequest.Builder()
-                .objects(contact.vid, company.companyId)
+                .objects(contact.vid, company.id)
                 .definition(AssociateRequest.AssociationDefinition.CONTACT_TO_COMPANY)
                 .build()
         );
-        // Check that the association was made
-        final List<Contact> contacts = hubSpot.companies().associatedContacts(company.companyId).collect(Collectors.toList());
-        Assert.assertEquals(1, contacts.size());
-        Contact relatedContact = contacts.get(0);
-        Assert.assertEquals(contactFirstName, relatedContact.properties.get("firstname").value);
-        Assert.assertEquals(contactLastName, relatedContact.properties.get("lastname").value);
+
+        fail("Restore the associations endpoint");
+
+//        // Check that the association was made
+//        final List<Contact> contacts = hubSpot.companies().associatedContacts(company.companyId).collect(Collectors.toList());
+//        Assert.assertEquals(1, contacts.size());
+//        Contact relatedContact = contacts.get(0);
+//        Assert.assertEquals(contactFirstName, relatedContact.properties.get("firstname").value);
+//        Assert.assertEquals(contactLastName, relatedContact.properties.get("lastname").value);
     }
 }

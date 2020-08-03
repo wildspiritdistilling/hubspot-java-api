@@ -1,8 +1,7 @@
 package com.wildspirit.hubspot;
 
 import com.wildspirit.hubspot.contact.Contact;
-import com.wildspirit.hubspot.contact.CreateContactRequest;
-import com.wildspirit.hubspot.contact.GetContactsRequest;
+import com.wildspirit.hubspot.contact.ContactApi;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -11,7 +10,7 @@ public class ContactApiTest {
 
     @Test
     public void testIterateThroughContactsWithoutError() {
-        hubSpot.contacts().all(new GetContactsRequest.Builder().build()).forEach(contact -> {
+        hubSpot.contacts().all(new ContactApi.GetContactsRequest.Builder().build()).forEach(contact -> {
             Assert.assertNotNull(contact);
             System.out.println(contact.properties.get("lastmodifieddate").value);
         });
@@ -19,7 +18,7 @@ public class ContactApiTest {
 
     @Test
     public void testCreateContact() {
-        Contact contact = hubSpot.contacts().create(new CreateContactRequest.Builder()
+        Contact contact = hubSpot.contacts().create(new ContactApi.CreateContactRequest.Builder()
                 .addProperty("firstname", "bob")
                 .addProperty("lastname", "mcbob").build()
         );

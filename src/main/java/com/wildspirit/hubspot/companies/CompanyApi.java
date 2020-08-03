@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wildspirit.hubspot.common.*;
+import com.wildspirit.hubspot.contact.Contact;
+import com.wildspirit.hubspot.search.FilterGroup;
 import io.mikael.urlbuilder.UrlBuilder;
 import okhttp3.OkHttpClient;
 
@@ -31,15 +33,20 @@ public class CompanyApi extends AbstractApi {
         if (req.id == null) {
             throw new IllegalStateException("Must specify a company id");
         }
-        return httpGet("https://api.hubapi.com/crm/v3/objects/companies/" + req.id, Company.class);
+        return httpGet(UrlBuilder.fromString("https://api.hubapi.com/crm/v3/objects/companies/" + req.id), Company.class);
     }
 
     public Company create(CreateCompanyRequest req) {
-        return httpPost("https://api.hubapi.com/crm/v3/objects/companies", req, Company.class);
+        return httpPost(UrlBuilder.fromString("https://api.hubapi.com/crm/v3/objects/companies"), req, Company.class);
     }
 
     public Company update(UpdateCompanyRequest req) {
-        return httpPatch("https://api.hubapi.com/crm/v3/objects/companies/" + req.id, req, Company.class);
+        return httpPatch(UrlBuilder.fromString("https://api.hubapi.com/crm/v3/objects/companies/" + req.id), req, Company.class);
+    }
+
+    public Stream<Company> search(SearchCompaniesRequest req) {
+        UrlBuilder url = UrlBuilder.fromString("https://api.hubapi.com/crm/v3/objects/companies/search");
+        return CollectionResponseIterator.httpPost(url, req, this, SearchCompaniesResponse.class).stream();
     }
 
     public static class GetCompaniesRequest {
@@ -80,6 +87,22 @@ public class CompanyApi extends AbstractApi {
 
         public GetCompanyRequest(Long id) {
             this.id = id;
+        }
+    }
+
+    public static class SearchCompaniesRequest {
+        public final List<String> properties;
+        public final List<FilterGroup> filterGroups;
+
+        public SearchCompaniesRequest(@JsonProperty("properties") List<String> properties, @JsonProperty("filterGroups") List<FilterGroup> filterGroups) {
+            this.properties = properties;
+            this.filterGroups = filterGroups;
+        }
+    }
+
+    public static class SearchCompaniesResponse extends CollectionResponse<Company> {
+        public SearchCompaniesResponse(@JsonProperty("results") List<Company> results, @JsonProperty("paging") Paging paging) {
+            super(results, paging);
         }
     }
 }

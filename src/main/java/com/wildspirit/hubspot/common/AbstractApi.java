@@ -19,9 +19,8 @@ public class AbstractApi {
         this.mapper = mapper;
     }
 
-    protected <T> T httpGet(String url, Class<T> responseClazz) {
-        UrlBuilder builder = UrlBuilder.fromString(url)
-                .addParameter("hapikey", apiKey);
+    protected <T> T httpGet(UrlBuilder builder, Class<T> responseClazz) {
+        builder = builder.addParameter("hapikey", apiKey);
         Request request = new Request.Builder()
                 .url(builder.toString())
                 .build();
@@ -44,9 +43,8 @@ public class AbstractApi {
         }
     }
 
-    protected <T> T httpPost(String url, Object object, Class<T> responseClazz) {
-        UrlBuilder urlBuilder = UrlBuilder.fromString(url)
-                .addParameter("hapikey", apiKey);
+    protected <T> T httpPost(UrlBuilder builder, Object object, Class<T> responseClazz) {
+        builder = builder.addParameter("hapikey", apiKey);
         String bodyData;
         try {
             bodyData = mapper.writeValueAsString(object);
@@ -54,10 +52,10 @@ public class AbstractApi {
             throw new RuntimeException(e);
         }
         RequestBody requestBody = RequestBody.create(MediaType.get("application/json"), bodyData);
-        Request.Builder builder = new Request.Builder()
-                .url(urlBuilder.toString())
+        Request.Builder requestBuilder = new Request.Builder()
+                .url(builder.toString())
                 .post(requestBody);
-        Request request = builder.build();
+        Request request = requestBuilder.build();
         try (Response response = http.newCall(request).execute()) {
             ResponseBody body = response.body();
             return body == null ? null : mapper.readValue(body.bytes(), responseClazz);
@@ -66,9 +64,8 @@ public class AbstractApi {
         }
     }
 
-    protected <T> T httpPatch(String url, Object object, Class<T> responseClazz) {
-        UrlBuilder urlBuilder = UrlBuilder.fromString(url)
-                .addParameter("hapikey", apiKey);
+    protected <T> T httpPatch(UrlBuilder url, Object object, Class<T> responseClazz) {
+        url = url.addParameter("hapikey", apiKey);
         String bodyData;
         try {
             bodyData = mapper.writeValueAsString(object);
@@ -77,7 +74,7 @@ public class AbstractApi {
         }
         RequestBody requestBody = RequestBody.create(MediaType.get("application/json"), bodyData);
         Request.Builder builder = new Request.Builder()
-                .url(urlBuilder.toString())
+                .url(url.toString())
                 .patch(requestBody);
         Request request = builder.build();
         try (Response response = http.newCall(request).execute()) {

@@ -3,20 +3,15 @@ package com.wildspirit.hubspot.associations;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wildspirit.hubspot.HubSpotException;
+import com.wildspirit.hubspot.common.AbstractApi;
 import okhttp3.*;
 
 import java.io.IOException;
 
-public final class AssociationsApi {
-
-    private final OkHttpClient http;
-    private final String apiKey;
-    private final ObjectMapper mapper;
+public final class AssociationsApi extends AbstractApi {
 
     public AssociationsApi(OkHttpClient http, String apiKey, ObjectMapper mapper) {
-        this.http = http;
-        this.apiKey = apiKey;
-        this.mapper = mapper;
+        super(http, apiKey, mapper);
     }
 
     public void associate(AssociateRequest req) {
@@ -26,7 +21,7 @@ public final class AssociationsApi {
         } catch (JsonProcessingException e) {
             throw new HubSpotException(e);
         }
-        RequestBody body = RequestBody.create(bodyData, MediaType.get("application/json"));
+        RequestBody body = RequestBody.create(MediaType.get("application/json"), bodyData);
         Request request = new Request.Builder()
                 .url(String.format("https://api.hubapi.com/crm-associations/v1/associations?hapikey=%s", apiKey))
                 .put(body)

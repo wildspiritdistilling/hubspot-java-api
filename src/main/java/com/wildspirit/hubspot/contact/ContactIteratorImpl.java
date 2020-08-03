@@ -22,7 +22,7 @@ public class ContactIteratorImpl implements Iterator<Contact> {
     private final String properties;
     private final String url;
 
-    public ContactIteratorImpl(String url, OkHttpClient client, String apiKey, ObjectMapper mapper, GetContactsRequest req) {
+    public ContactIteratorImpl(String url, OkHttpClient client, String apiKey, ObjectMapper mapper, ContactApi.GetContactsRequest req) {
         this.url = url;
         this.client = client;
         this.apiKey = apiKey;
@@ -75,7 +75,7 @@ public class ContactIteratorImpl implements Iterator<Contact> {
 
                 final String body = response.body().string();
                 System.out.println(body);
-                GetContactsResponse collection = mapper.readValue(body, GetContactsResponse.class);
+                ContactApi.GetContactsResponse collection = mapper.readValue(body, ContactApi.GetContactsResponse.class);
                 hasMore = collection.hasMore;
                 offset = collection.vidOffset;
                 contacts = collection.contacts.iterator();
