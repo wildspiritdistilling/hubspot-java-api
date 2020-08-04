@@ -1,10 +1,11 @@
 package com.wildspirit.hubspot.companies;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.wildspirit.hubspot.common.*;
-import com.wildspirit.hubspot.contact.Contact;
+import com.wildspirit.hubspot.common.AbstractApi;
+import com.wildspirit.hubspot.common.CollectionResponse;
+import com.wildspirit.hubspot.common.CollectionResponseIterator;
+import com.wildspirit.hubspot.common.Paging;
 import com.wildspirit.hubspot.search.FilterGroup;
 import io.mikael.urlbuilder.UrlBuilder;
 import okhttp3.OkHttpClient;
@@ -81,7 +82,6 @@ public class CompanyApi extends AbstractApi {
     }
 
     public static class UpdateCompanyRequest {
-        @JsonIgnore
         public final Long id;
         public final Map<String, Object> properties;
 
@@ -115,7 +115,7 @@ public class CompanyApi extends AbstractApi {
         }
     }
 
-    public class CreateCompaniesBatchRequest {
+    public static class CreateCompaniesBatchRequest {
         public final List<CreateCompanyRequest> inputs;
 
         public CreateCompaniesBatchRequest(List<CreateCompanyRequest> inputs) {
@@ -123,7 +123,7 @@ public class CompanyApi extends AbstractApi {
         }
     }
 
-    public class CreateCompaniesBatchResponse {
+    public static class CreateCompaniesBatchResponse {
         public final String status;
         public final List<Company> results;
         public final Date requestedAt;
@@ -133,7 +133,7 @@ public class CompanyApi extends AbstractApi {
 
         public CreateCompaniesBatchResponse(
                 @JsonProperty("status") String status,
-                @JsonProperty("status") List<Company> results,
+                @JsonProperty("results") List<Company> results,
                 @JsonProperty("requestedAt") Date requestedAt,
                 @JsonProperty("statedAt") Date statedAt,
                 @JsonProperty("completedAt") Date completedAt,
@@ -148,7 +148,7 @@ public class CompanyApi extends AbstractApi {
         }
     }
 
-    public class UpdateCompaniesBatchRequest {
+    public static class UpdateCompaniesBatchRequest {
         public final List<UpdateCompanyRequest> inputs;
 
         public UpdateCompaniesBatchRequest(List<UpdateCompanyRequest> inputs) {
@@ -156,7 +156,7 @@ public class CompanyApi extends AbstractApi {
         }
     }
 
-    public class UpdateCompaniesBatchResponse {
+    public static class UpdateCompaniesBatchResponse {
         public final String status;
         public final List<Company> results;
         public final Date requestedAt;
@@ -166,7 +166,7 @@ public class CompanyApi extends AbstractApi {
 
         public UpdateCompaniesBatchResponse(
                 @JsonProperty("status") String status,
-                @JsonProperty("status") List<Company> results,
+                @JsonProperty("results") List<Company> results,
                 @JsonProperty("requestedAt") Date requestedAt,
                 @JsonProperty("statedAt") Date statedAt,
                 @JsonProperty("completedAt") Date completedAt,
