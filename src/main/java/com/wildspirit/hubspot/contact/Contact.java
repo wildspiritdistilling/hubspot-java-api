@@ -1,10 +1,12 @@
 package com.wildspirit.hubspot.contact;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.wildspirit.hubspot.common.HubSpotType;
 
 import java.util.Date;
 import java.util.Map;
 
+@HubSpotType(type = "contact", collectionName = "contacts")
 public final class Contact {
     public final Date createdAt;
     public final Date updatedAt;

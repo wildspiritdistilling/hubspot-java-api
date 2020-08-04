@@ -9,6 +9,7 @@ import com.wildspirit.hubspot.search.FilterGroup;
 import io.mikael.urlbuilder.UrlBuilder;
 import okhttp3.OkHttpClient;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
@@ -40,8 +41,16 @@ public class CompanyApi extends AbstractApi {
         return httpPost(UrlBuilder.fromString("https://api.hubapi.com/crm/v3/objects/companies"), req, Company.class);
     }
 
+    public CreateCompaniesBatchResponse create(CreateCompaniesBatchRequest req) {
+        return httpPost(UrlBuilder.fromString("https://api.hubapi.com/crm/v3/objects/companies/batch/create"), req, CreateCompaniesBatchResponse.class);
+    }
+
     public Company update(UpdateCompanyRequest req) {
         return httpPatch(UrlBuilder.fromString("https://api.hubapi.com/crm/v3/objects/companies/" + req.id), req, Company.class);
+    }
+
+    public UpdateCompaniesBatchResponse update(UpdateCompaniesBatchRequest req) {
+        return httpPost(UrlBuilder.fromString("https://api.hubapi.com/crm/v3/objects/companies/batch/update"), req, UpdateCompaniesBatchResponse.class);
     }
 
     public Stream<Company> search(SearchCompaniesRequest req) {
@@ -103,6 +112,72 @@ public class CompanyApi extends AbstractApi {
     public static class SearchCompaniesResponse extends CollectionResponse<Company> {
         public SearchCompaniesResponse(@JsonProperty("results") List<Company> results, @JsonProperty("paging") Paging paging) {
             super(results, paging);
+        }
+    }
+
+    public class CreateCompaniesBatchRequest {
+        public final List<CreateCompanyRequest> inputs;
+
+        public CreateCompaniesBatchRequest(List<CreateCompanyRequest> inputs) {
+            this.inputs = inputs;
+        }
+    }
+
+    public class CreateCompaniesBatchResponse {
+        public final String status;
+        public final List<Company> results;
+        public final Date requestedAt;
+        public final Date statedAt;
+        public final Date completedAt;
+        public final Map<String, String> links;
+
+        public CreateCompaniesBatchResponse(
+                @JsonProperty("status") String status,
+                @JsonProperty("status") List<Company> results,
+                @JsonProperty("requestedAt") Date requestedAt,
+                @JsonProperty("statedAt") Date statedAt,
+                @JsonProperty("completedAt") Date completedAt,
+                @JsonProperty("links") Map<String, String> links
+        ) {
+            this.status = status;
+            this.results = results;
+            this.requestedAt = requestedAt;
+            this.statedAt = statedAt;
+            this.completedAt = completedAt;
+            this.links = links;
+        }
+    }
+
+    public class UpdateCompaniesBatchRequest {
+        public final List<UpdateCompanyRequest> inputs;
+
+        public UpdateCompaniesBatchRequest(List<UpdateCompanyRequest> inputs) {
+            this.inputs = inputs;
+        }
+    }
+
+    public class UpdateCompaniesBatchResponse {
+        public final String status;
+        public final List<Company> results;
+        public final Date requestedAt;
+        public final Date statedAt;
+        public final Date completedAt;
+        public final Map<String, String> links;
+
+        public UpdateCompaniesBatchResponse(
+                @JsonProperty("status") String status,
+                @JsonProperty("status") List<Company> results,
+                @JsonProperty("requestedAt") Date requestedAt,
+                @JsonProperty("statedAt") Date statedAt,
+                @JsonProperty("completedAt") Date completedAt,
+                @JsonProperty("links") Map<String, String> links
+        ) {
+            this.status = status;
+            this.results = results;
+            this.requestedAt = requestedAt;
+            this.statedAt = statedAt;
+            this.completedAt = completedAt;
+            this.links = links;
         }
     }
 }

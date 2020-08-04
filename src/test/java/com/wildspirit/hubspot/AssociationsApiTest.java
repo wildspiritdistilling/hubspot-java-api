@@ -1,16 +1,23 @@
 package com.wildspirit.hubspot;
 
-import com.wildspirit.hubspot.associations.AssociateRequest;
+import com.wildspirit.hubspot.associations.Association;
+import com.wildspirit.hubspot.associations.AssociationsApi;
+import com.wildspirit.hubspot.associations.AssociationsApi.FindAssociationsRequest;
 import com.wildspirit.hubspot.companies.Company;
 import com.wildspirit.hubspot.companies.CompanyApi;
 import com.wildspirit.hubspot.contact.Contact;
 import com.wildspirit.hubspot.contact.ContactApi;
+<<<<<<< HEAD
 import com.wildspirit.hubspot.contact.ContactApi.CreateContactRequest;
+=======
+import junit.framework.AssertionFailedError;
+>>>>>>> Add associations api, bulk create and update for companies
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.fail;
 
@@ -37,13 +44,17 @@ public class AssociationsApiTest {
         Assert.assertEquals(contactLastName, contact.properties.get("lastname"));
         // Associate the contact with the company
         hubSpot.associations().associate(
-                new AssociateRequest.Builder()
+                new AssociationsApi.CreateAssociationRequest.Builder()
                 .objects(contact.id, company.id)
-                .definition(AssociateRequest.AssociationDefinition.CONTACT_TO_COMPANY)
+                .definition(AssociationsApi.CreateAssociationRequest.AssociationDefinition.CONTACT_TO_COMPANY)
                 .build()
         );
 
         fail("Restore the associations endpoint");
+
+        final Association association = hubSpot.associations().find(new FindAssociationsRequest(company.id, Company.class, Contact.class)).findFirst().orElseThrow(AssertionFailedError::new);
+        Assert.assertEquals((Long)contact.id, (Long)association.id);
+        Assert.assertEquals("contact", association.type);
 
 //        // Check that the association was made
 //        final List<Contact> contacts = hubSpot.companies().associatedContacts(company.companyId).collect(Collectors.toList());

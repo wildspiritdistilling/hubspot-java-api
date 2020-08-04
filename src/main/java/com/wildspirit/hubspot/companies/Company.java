@@ -1,10 +1,12 @@
 package com.wildspirit.hubspot.companies;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.wildspirit.hubspot.common.HubSpotType;
 
 import java.util.Date;
 import java.util.Map;
 
+@HubSpotType(type = "company", collectionName = "companies")
 public final class Company {
     public final Date createdAt;
     public final Date updatedAt;
