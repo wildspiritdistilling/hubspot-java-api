@@ -58,6 +58,7 @@ public class AbstractApi {
                 case 403:
                     throw new HubSpotException("Forbidden");
                 case 200:
+                case 201:
                     return body == null ? null : mapper.readValue(body.bytes(), responseClazz);
                 case 204:
                     return null;
@@ -85,6 +86,7 @@ public class AbstractApi {
                 case 403:
                     throw new HubSpotException("Forbidden");
                 case 200:
+                case 201:
                     return body == null ? null : mapper.readValue(body.bytes(), responseClazz);
                 case 204:
                     return null;

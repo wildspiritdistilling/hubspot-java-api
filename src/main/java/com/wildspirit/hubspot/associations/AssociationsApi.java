@@ -20,7 +20,7 @@ public final class AssociationsApi extends AbstractApi {
     }
 
     public void associate(CreateAssociationRequest req) {
-        httpPatch(UrlBuilder.fromString("https://api.hubapi.com/crm-associations/v1/associations"), req, null);
+        httpPut(UrlBuilder.fromString("https://api.hubapi.com/crm-associations/v1/associations"), req, null);
     }
 
     public Stream<Association> find(FindAssociationsRequest req) {
@@ -92,7 +92,7 @@ public final class AssociationsApi extends AbstractApi {
         }
     }
 
-    public class FindAssociationsResponse extends CollectionResponse<Association> {
+    public static class FindAssociationsResponse extends CollectionResponse<Association> {
         public FindAssociationsResponse(@JsonProperty("results") List<Association> results, @JsonProperty("paging") Paging paging) {
             super(results, paging);
         }
