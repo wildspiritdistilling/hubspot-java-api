@@ -5,6 +5,7 @@ import com.wildspirit.hubspot.companies.Company;
 import com.wildspirit.hubspot.companies.CompanyApi;
 import com.wildspirit.hubspot.contact.Contact;
 import com.wildspirit.hubspot.contact.ContactApi;
+import com.wildspirit.hubspot.contact.ContactApi.CreateContactRequest;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -30,16 +31,14 @@ public class AssociationsApiTest {
         // Create the contact
         final String contactFirstName = "bob" + System.currentTimeMillis();
         final String contactLastName = "mcbob" + System.currentTimeMillis();
-        Contact contact = hubSpot.contacts().create(new ContactApi.CreateContactRequest.Builder()
-                .addProperty("firstname", contactFirstName)
-                .addProperty("lastname", contactLastName).build()
-        );
-        Assert.assertEquals(contactFirstName, contact.properties.get("firstname").value);
-        Assert.assertEquals(contactLastName, contact.properties.get("lastname").value);
+        Map<String, Object> contactProps = Map.of("firstname", contactFirstName, "lastname", contactLastName);
+        Contact contact = hubSpot.contacts().create(new CreateContactRequest(contactProps));
+        Assert.assertEquals(contactFirstName, contact.properties.get("firstname"));
+        Assert.assertEquals(contactLastName, contact.properties.get("lastname"));
         // Associate the contact with the company
         hubSpot.associations().associate(
                 new AssociateRequest.Builder()
-                .objects(contact.vid, company.id)
+                .objects(contact.id, company.id)
                 .definition(AssociateRequest.AssociationDefinition.CONTACT_TO_COMPANY)
                 .build()
         );
