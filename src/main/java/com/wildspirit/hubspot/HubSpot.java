@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wildspirit.hubspot.associations.AssociationsApi;
 import com.wildspirit.hubspot.companies.CompanyApi;
 import com.wildspirit.hubspot.contact.ContactApi;
+import com.wildspirit.hubspot.engagements.EngagementApi;
 import okhttp3.OkHttpClient;
 
 public class HubSpot {
@@ -45,5 +46,9 @@ public class HubSpot {
 
     public AssociationsApi associations() {
         return new AssociationsApi(client, apiKey, mapper);
+    }
+
+    public EngagementApi engagements() {
+        return new EngagementApi(client, apiKey, mapper);
     }
 }
