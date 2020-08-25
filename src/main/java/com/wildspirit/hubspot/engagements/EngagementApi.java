@@ -38,7 +38,7 @@ public class EngagementApi extends AbstractApi {
 
         public static CreateEngagementRequest companyNote(long companyId, String text) {
             return new CreateEngagementRequest(
-                    new EngagementInfo(true, 1, Type.NOTE, new Date()),
+                    new EngagementInfo(null, true, 1, Type.NOTE, new Date()),
                     new Associations(null, List.of(companyId)),
                     Map.of("body", text)
             );
@@ -55,7 +55,7 @@ public class EngagementApi extends AbstractApi {
         }
     }
 
-    public class GetEngagementRequest {
+    public static class GetEngagementRequest {
         public final Long id;
 
         public GetEngagementRequest(Long id) {
@@ -63,7 +63,7 @@ public class EngagementApi extends AbstractApi {
         }
     }
 
-    public class DeleteEngagementRequest {
+    public static class DeleteEngagementRequest {
         public final Long id;
 
         public DeleteEngagementRequest(Long id) {

@@ -1,11 +1,13 @@
 package com.wildspirit.hubspot.engagements;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.wildspirit.hubspot.common.HubSpotType;
 
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+@HubSpotType(type = "engagement", collectionName = "engagements")
 public class Engagement {
 
     @JsonProperty("engagement")
@@ -26,17 +28,20 @@ public class Engagement {
     }
 
     public static class EngagementInfo {
+        public final Long id;
         public final Boolean active;
         public final Integer ownerId;
         public final Type type;
         public final Date timestamp;
 
         public EngagementInfo(
+                @JsonProperty("id") Long id,
                 @JsonProperty("active") Boolean active,
                 @JsonProperty("ownerId") Integer ownerId,
                 @JsonProperty("type") Type type,
                 @JsonProperty("timestamp") Date timestamp
         ) {
+            this.id = id;
             this.active = active;
             this.ownerId = ownerId;
             this.type = type;
@@ -60,6 +65,10 @@ public class Engagement {
     }
 
     public enum Type {
-        NOTE
+        NOTE,
+        CALL,
+        EMAIL,
+        TASK,
+        MEETING
     }
 }
