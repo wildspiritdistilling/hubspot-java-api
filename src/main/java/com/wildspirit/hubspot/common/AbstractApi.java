@@ -99,6 +99,32 @@ public class AbstractApi {
         }
     }
 
+    protected void httpDelete(UrlBuilder builder) {
+        builder = builder.addParameter("hapikey", apiKey);
+        Request.Builder requestBuilder = new Request.Builder()
+                .url(builder.toString())
+                .delete();
+        Request request = requestBuilder.build();
+        try (Response response = http.newCall(request).execute()) {
+            ResponseBody body = response.body();
+            switch (response.code()) {
+                case 429:
+                    throw new HubSpotException("Too many requests");
+                case 403:
+                    throw new HubSpotException("Forbidden");
+                case 200:
+                case 201:
+                case 204:
+                    return;
+                default:
+                    String bodyString  = body == null ? "" : body.string();
+                    throw new HubSpotException("Error " + response.code() + " " + bodyString);
+            }
+        } catch (IOException e) {
+            throw new HubSpotException("There was a problem processing the response", e);
+        }
+    }
+
     protected <T> T httpPatch(UrlBuilder url, Object object, Class<T> responseClazz) {
         url = url.addParameter("hapikey", apiKey);
         RequestBody requestBody = serializeBody(object);

@@ -19,6 +19,14 @@ public class EngagementApi extends AbstractApi {
         return httpPost(UrlBuilder.fromString("https://api.hubapi.com/engagements/v1/engagements"), req, CreateEngagementResponse.class);
     }
 
+    public Engagement get(GetEngagementRequest req) {
+        return httpGet(UrlBuilder.fromString(String.format("https://api.hubapi.com/engagements/v1/engagements/%s", req.id)), Engagement.class);
+    }
+
+    public void delete(DeleteEngagementRequest req) {
+        httpDelete(UrlBuilder.fromString(String.format("https://api.hubapi.com/engagements/v1/engagements/%s", req.id)));
+    }
+
     public static class CreateEngagementRequest extends Engagement {
         public CreateEngagementRequest(
                 @JsonProperty("engagement") EngagementInfo engagement,
@@ -44,6 +52,22 @@ public class EngagementApi extends AbstractApi {
                 @JsonProperty("metadata") Map<String, Object> metdadata
         ) {
             super(engagement, associations, metdadata);
+        }
+    }
+
+    public class GetEngagementRequest {
+        public final Long id;
+
+        public GetEngagementRequest(Long id) {
+            this.id = id;
+        }
+    }
+
+    public class DeleteEngagementRequest {
+        public final Long id;
+
+        public DeleteEngagementRequest(Long id) {
+            this.id = id;
         }
     }
 }
