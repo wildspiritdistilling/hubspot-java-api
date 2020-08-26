@@ -8,12 +8,12 @@ public final class Filter {
     @JsonProperty("operator")
     public final Operator operator;
     @JsonProperty("value")
-    public final String value;
+    public final Object value;
 
     public Filter(
             @JsonProperty("propertyName") String propertyName,
             @JsonProperty("operator") Operator operator,
-            @JsonProperty("value") String value
+            @JsonProperty("value") Object value
     ) {
         this.propertyName = propertyName;
         this.operator = operator;

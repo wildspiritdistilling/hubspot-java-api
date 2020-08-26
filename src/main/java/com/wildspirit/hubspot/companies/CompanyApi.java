@@ -6,7 +6,9 @@ import com.wildspirit.hubspot.common.AbstractApi;
 import com.wildspirit.hubspot.common.CollectionResponse;
 import com.wildspirit.hubspot.common.CollectionResponseIterator;
 import com.wildspirit.hubspot.common.Paging;
+import com.wildspirit.hubspot.search.Filter;
 import com.wildspirit.hubspot.search.FilterGroup;
+import com.wildspirit.hubspot.search.Operator;
 import io.mikael.urlbuilder.UrlBuilder;
 import okhttp3.OkHttpClient;
 
@@ -106,6 +108,18 @@ public class CompanyApi extends AbstractApi {
         public SearchCompaniesRequest(@JsonProperty("properties") List<String> properties, @JsonProperty("filterGroups") List<FilterGroup> filterGroups) {
             this.properties = properties;
             this.filterGroups = filterGroups;
+        }
+
+        public static SearchCompaniesRequest byName(String name) {
+            return new SearchCompaniesRequest(List.of("name"), List.of(new FilterGroup(List.of(new Filter("name", Operator.EQUAL_TO, name)))));
+        }
+
+        public static SearchCompaniesRequest byEmail(String email) {
+            return new SearchCompaniesRequest(List.of("name"), List.of(new FilterGroup(List.of(new Filter("email", Operator.EQUAL_TO, email)))));
+        }
+
+        public static SearchCompaniesRequest singleProperty(String propertyName, Object propertyValue) {
+            return new SearchCompaniesRequest(List.of("name"), List.of(new FilterGroup(List.of(new Filter(propertyName, Operator.EQUAL_TO, propertyValue)))));
         }
     }
 
