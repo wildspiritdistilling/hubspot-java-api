@@ -7,6 +7,7 @@ import com.wildspirit.hubspot.engagements.EngagementApi.CreateEngagementResponse
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,7 +25,7 @@ public class EngagementsApiTest {
         Assert.assertEquals(name, company.properties.get("name"));
         Assert.assertEquals("0414251133", company.properties.get("phone"));
 
-        CreateEngagementResponse engagement = hubSpot.engagements().create(CreateEngagementRequest.companyNote(company.id, "a cool note"));
+        CreateEngagementResponse engagement = hubSpot.engagements().create(CreateEngagementRequest.companyNote(company.id, "a cool note", new Date()));
         Assert.assertNotNull(engagement);
         Assert.assertEquals("a cool note", engagement.metdadata.get("body"));
         Assert.assertTrue(engagement.associations.companyIds.contains(company.id));
