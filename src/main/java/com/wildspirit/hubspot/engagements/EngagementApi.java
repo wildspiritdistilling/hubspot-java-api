@@ -36,9 +36,16 @@ public class EngagementApi extends AbstractApi {
             super(engagement, associations, metdadata);
         }
 
-        public static CreateEngagementRequest companyNote(long companyId, String text) {
+        /**
+         * Create a note against a company
+         * @param companyId to create the note against
+         * @param text the note contents
+         * @param date that the note appears in the company timeline
+         * @return new engagement request
+         */
+        public static CreateEngagementRequest companyNote(long companyId, String text, Date date) {
             return new CreateEngagementRequest(
-                    new EngagementInfo(null, true, 1, Type.NOTE, new Date()),
+                    new EngagementInfo(null, true, 1, Type.NOTE, date),
                     new Associations(null, List.of(companyId)),
                     Map.of("body", text)
             );
