@@ -2,11 +2,17 @@ package com.wildspirit.hubspot.common;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.wildspirit.hubspot.HubSpot;
 import com.wildspirit.hubspot.HubSpotException;
+import com.wildspirit.hubspot.common.HttpException.ForbiddenException;
+import com.wildspirit.hubspot.common.HttpException.TooManyRequestsException;
+import com.wildspirit.hubspot.common.HttpException.UnmappedHttpException;
 import io.mikael.urlbuilder.UrlBuilder;
 import okhttp3.*;
 
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 
 public class AbstractApi {
     protected final OkHttpClient http;
@@ -20,6 +26,10 @@ public class AbstractApi {
     }
 
     protected <T> T httpGet(UrlBuilder builder, Class<T> responseClazz) {
+        return retry(() -> doHttpGet(builder, responseClazz));
+    }
+
+    private <T> T doHttpGet(UrlBuilder builder, Class<T> responseClazz) {
         builder = builder.addParameter("hapikey", apiKey);
         Request request = new Request.Builder().url(builder.toString()).build();
 
@@ -27,16 +37,16 @@ public class AbstractApi {
             ResponseBody body = response.body();
             switch (response.code()) {
                 case 429:
-                    throw new HubSpotException("Too many requests");
+                    throw new TooManyRequestsException(response.message());
                 case 403:
-                    throw new HubSpotException("Forbidden");
+                    throw new ForbiddenException(response.message());
                 case 200:
                     return body == null ? null : mapper.readValue(body.bytes(), responseClazz);
                 case 204:
                     return null;
                 default:
                     String bodyString  = body == null ? "" : body.string();
-                    throw new HubSpotException("Error " + response.code() + " " + bodyString);
+                    throw new HttpException("Error " + response.code() + " " + bodyString);
             }
         } catch (IOException e) {
             throw new HubSpotException("Could not map " + responseClazz.getName(), e);
@@ -44,6 +54,10 @@ public class AbstractApi {
     }
 
     protected <T> T httpPost(UrlBuilder builder, Object object, Class<T> responseClazz) {
+        return retry(() -> doHttpPost(builder, object, responseClazz));
+    }
+
+    private <T> T doHttpPost(UrlBuilder builder, Object object, Class<T> responseClazz) {
         builder = builder.addParameter("hapikey", apiKey);
         RequestBody requestBody = serializeBody(object);
         Request.Builder requestBuilder = new Request.Builder()
@@ -54,9 +68,9 @@ public class AbstractApi {
             ResponseBody body = response.body();
             switch (response.code()) {
                 case 429:
-                    throw new HubSpotException("Too many requests");
+                    throw new TooManyRequestsException(response.message());
                 case 403:
-                    throw new HubSpotException("Forbidden");
+                    throw new ForbiddenException(response.message());
                 case 200:
                 case 201:
                     return body == null ? null : mapper.readValue(body.bytes(), responseClazz);
@@ -64,7 +78,7 @@ public class AbstractApi {
                     return null;
                 default:
                     String bodyString  = body == null ? "" : body.string();
-                    throw new HubSpotException("Error " + response.code() + " " + bodyString);
+                    throw new UnmappedHttpException(response.code(), bodyString);
             }
         } catch (IOException e) {
             throw new HubSpotException("Could not map " + responseClazz.getName(), e);
@@ -72,6 +86,10 @@ public class AbstractApi {
     }
 
     protected <T> T httpPut(UrlBuilder builder, Object object, Class<T> responseClazz) {
+        return retry(() -> doHttpPut(builder, object, responseClazz));
+    }
+
+    private <T> T doHttpPut(UrlBuilder builder, Object object, Class<T> responseClazz) {
         builder = builder.addParameter("hapikey", apiKey);
         RequestBody requestBody = serializeBody(object);
         Request.Builder requestBuilder = new Request.Builder()
@@ -82,9 +100,9 @@ public class AbstractApi {
             ResponseBody body = response.body();
             switch (response.code()) {
                 case 429:
-                    throw new HubSpotException("Too many requests");
+                    throw new TooManyRequestsException(response.message());
                 case 403:
-                    throw new HubSpotException("Forbidden");
+                    throw new ForbiddenException(response.message());
                 case 200:
                 case 201:
                     return body == null ? null : mapper.readValue(body.bytes(), responseClazz);
@@ -92,7 +110,7 @@ public class AbstractApi {
                     return null;
                 default:
                     String bodyString  = body == null ? "" : body.string();
-                    throw new HubSpotException("Error " + response.code() + " " + bodyString);
+                    throw new UnmappedHttpException(response.code(), bodyString);
             }
         } catch (IOException e) {
             throw new HubSpotException("Could not map " + responseClazz.getName(), e);
@@ -100,6 +118,13 @@ public class AbstractApi {
     }
 
     protected void httpDelete(UrlBuilder builder) {
+        retry(() -> {
+            doHttpDelete(builder);
+            return null;
+        });
+    }
+
+    private void doHttpDelete(UrlBuilder builder) {
         builder = builder.addParameter("hapikey", apiKey);
         Request.Builder requestBuilder = new Request.Builder()
                 .url(builder.toString())
@@ -109,16 +134,16 @@ public class AbstractApi {
             ResponseBody body = response.body();
             switch (response.code()) {
                 case 429:
-                    throw new HubSpotException("Too many requests");
+                    throw new TooManyRequestsException(response.message());
                 case 403:
-                    throw new HubSpotException("Forbidden");
+                    throw new ForbiddenException(response.message());
                 case 200:
                 case 201:
                 case 204:
                     return;
                 default:
                     String bodyString  = body == null ? "" : body.string();
-                    throw new HubSpotException("Error " + response.code() + " " + bodyString);
+                    throw new UnmappedHttpException(response.code(), bodyString);
             }
         } catch (IOException e) {
             throw new HubSpotException("There was a problem processing the response", e);
@@ -126,6 +151,10 @@ public class AbstractApi {
     }
 
     protected <T> T httpPatch(UrlBuilder url, Object object, Class<T> responseClazz) {
+        return retry(() -> doHttpPatch(url, object, responseClazz));
+    }
+
+    private <T> T doHttpPatch(UrlBuilder url, Object object, Class<T> responseClazz) {
         url = url.addParameter("hapikey", apiKey);
         RequestBody requestBody = serializeBody(object);
         Request.Builder builder = new Request.Builder()
@@ -136,16 +165,16 @@ public class AbstractApi {
             ResponseBody body = response.body();
             switch (response.code()) {
                 case 429:
-                    throw new HubSpotException("Too many requests");
+                    throw new TooManyRequestsException(response.message());
                 case 403:
-                    throw new HubSpotException("Forbidden");
+                    throw new ForbiddenException(response.message());
                 case 200:
                     return body == null ? null : mapper.readValue(body.bytes(), responseClazz);
                 case 204:
                     return null;
                 default:
                     String bodyString  = body == null ? "" : body.string();
-                    throw new HubSpotException("Error " + response.code() + " " + bodyString);
+                    throw new UnmappedHttpException(response.code(), bodyString);
             }
         } catch (IOException e) {
             throw new HubSpotException("Could not map " + responseClazz.getName(), e);
@@ -160,5 +189,18 @@ public class AbstractApi {
             throw new RuntimeException(e);
         }
         return RequestBody.create(MediaType.get("application/json"), bodyData);
+    }
+
+    private <T> T retry(Supplier<T> action) {
+        for (int i = 0; i < 3; i++) {
+            try {
+                return action.get();
+            } catch (TooManyRequestsException e) {
+                try {
+                    Thread.sleep(TimeUnit.MINUTES.toMillis(1));
+                } catch (InterruptedException ignored) {}
+            }
+        }
+        throw new TooManyRequestsException("Exceeded 3 retries");
     }
 }
