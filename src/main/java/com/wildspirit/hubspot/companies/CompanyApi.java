@@ -9,6 +9,7 @@ import com.wildspirit.hubspot.common.Paging;
 import com.wildspirit.hubspot.search.Filter;
 import com.wildspirit.hubspot.search.FilterGroup;
 import com.wildspirit.hubspot.search.Operator;
+import com.wildspirit.hubspot.search.Sort;
 import io.mikael.urlbuilder.UrlBuilder;
 import okhttp3.OkHttpClient;
 
@@ -104,22 +105,24 @@ public class CompanyApi extends AbstractApi {
     public static class SearchCompaniesRequest {
         public final List<String> properties;
         public final List<FilterGroup> filterGroups;
+        public final List<Sort> sorts;
 
-        public SearchCompaniesRequest(@JsonProperty("properties") List<String> properties, @JsonProperty("filterGroups") List<FilterGroup> filterGroups) {
+        public SearchCompaniesRequest(@JsonProperty("properties") List<String> properties, @JsonProperty("filterGroups") List<FilterGroup> filterGroups, @JsonProperty("sorts") List<Sort> sorts) {
             this.properties = properties;
             this.filterGroups = filterGroups;
+            this.sorts = sorts;
         }
 
         public static SearchCompaniesRequest byName(String name) {
-            return new SearchCompaniesRequest(List.of("name"), List.of(new FilterGroup(List.of(new Filter("name", Operator.EQUAL_TO, name)))));
+            return new SearchCompaniesRequest(List.of("name"), List.of(new FilterGroup(List.of(new Filter("name", Operator.EQUAL_TO, name)))), List.of());
         }
 
         public static SearchCompaniesRequest byEmail(String email) {
-            return new SearchCompaniesRequest(List.of("name"), List.of(new FilterGroup(List.of(new Filter("email", Operator.EQUAL_TO, email)))));
+            return new SearchCompaniesRequest(List.of("name"), List.of(new FilterGroup(List.of(new Filter("email", Operator.EQUAL_TO, email)))), List.of());
         }
 
         public static SearchCompaniesRequest singleProperty(String propertyName, Object propertyValue) {
-            return new SearchCompaniesRequest(List.of("name"), List.of(new FilterGroup(List.of(new Filter(propertyName, Operator.EQUAL_TO, propertyValue)))));
+            return new SearchCompaniesRequest(List.of("name"), List.of(new FilterGroup(List.of(new Filter(propertyName, Operator.EQUAL_TO, propertyValue)))), List.of());
         }
     }
 
