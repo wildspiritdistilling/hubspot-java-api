@@ -1,7 +1,7 @@
 package com.wildspirit.hubspot.common;
 
+import com.wildspirit.hubspot.companies.CompanyApi;
 import io.mikael.urlbuilder.UrlBuilder;
-import okhttp3.ResponseBody;
 
 import java.util.Iterator;
 import java.util.Spliterator;
@@ -10,30 +10,40 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-public class CollectionResponseIterator<R, T extends CollectionResponse<R>> implements Iterator<R> {
+public class CollectionResponseIterator<ITEM, REQ, RESP extends CollectionResponse<ITEM>> implements Iterator<ITEM> {
 
     private final UrlBuilder urlBuilder;
-    private final Function<UrlBuilder, T> requestMaker;
-    private final AbstractApi api;
-    private final Class<T> responseType;
-    private CollectionResponse<R> lastResponse;
-    private Iterator<R> resultIterator;
+    private final Function<UrlBuilder, RESP> requestMaker;
+    private CollectionResponse<ITEM> lastResponse;
+    private Iterator<ITEM> resultIterator;
 
-    public CollectionResponseIterator(UrlBuilder urlBuilder, Function<UrlBuilder, T> requestMaker, AbstractApi api, Class<T> responseType) {
+    public CollectionResponseIterator(UrlBuilder urlBuilder, Function<UrlBuilder, RESP> requestMaker) {
         this.urlBuilder = urlBuilder;
         this.requestMaker = requestMaker;
-        this.api = api;
-        this.responseType = responseType;
         this.lastResponse = null;
         this.resultIterator = null;
     }
 
-    public static <R, T extends CollectionResponse<R>> CollectionResponseIterator<R, T> httpGet(UrlBuilder urlBuilder, AbstractApi api, Class<T> responseType) {
-        return new CollectionResponseIterator<>(urlBuilder, s -> api.httpGet(urlBuilder, responseType), api, responseType);
+    public static <ITEM, REQ, RESP extends CollectionResponse<ITEM>> CollectionResponseIterator<ITEM, REQ, RESP> httpGet(UrlBuilder urlBuilder, AbstractApi api, Class<RESP> responseType) {
+        return new CollectionResponseIterator<>(urlBuilder, s -> api.httpGet(urlBuilder, responseType));
     }
 
-    public static <R, T extends CollectionResponse<R>> CollectionResponseIterator<R, T> httpPost(UrlBuilder urlBuilder, Object body, AbstractApi api, Class<T> responseType) {
-        return new CollectionResponseIterator<>(urlBuilder, s -> api.httpPost(urlBuilder, body, responseType), api, responseType);
+    public static <ITEM, REQ, RESP extends CollectionResponse<ITEM>> CollectionResponseIterator<ITEM, REQ, RESP> httpPost(UrlBuilder urlBuilder, Object req, AbstractApi api, Class<RESP> responseType) {
+        return new CollectionResponseIterator<>(urlBuilder, s -> api.httpPost(urlBuilder, req, responseType));
+    }
+
+    public static <ITEM, REQ, RESP extends CollectionResponse<ITEM>> CollectionResponseIterator<ITEM, REQ, RESP> httpPost(UrlBuilder urlBuilder, CompanyApi.SearchCompaniesRequest req, RequestWrapper<CompanyApi.SearchCompaniesRequest, CompanyApi.SearchCompaniesResponse> wrapper, AbstractApi api, Class<CompanyApi.SearchCompaniesResponse> responseType) {
+        return new CollectionResponseIterator(urlBuilder, s -> {
+            if (wrapper.lastResponse == null) {
+                final CompanyApi.SearchCompaniesResponse resp = api.httpPost(urlBuilder, req, responseType);
+                wrapper.setLastResponse(resp);
+                return resp;
+            } else {
+                final CompanyApi.SearchCompaniesResponse resp = api.httpPost(urlBuilder, wrapper.wrapRequest(req, wrapper.lastResponse), responseType);
+                wrapper.setLastResponse(resp);
+                return resp;
+            }
+        });
     }
 
     @Override
@@ -59,18 +69,26 @@ public class CollectionResponseIterator<R, T extends CollectionResponse<R>> impl
     }
 
     @Override
-    public R next() {
+    public ITEM next() {
         return resultIterator.next();
     }
 
-    public Stream<R> stream() {
+    public Stream<ITEM> stream() {
         return StreamSupport.stream(Spliterators.spliteratorUnknownSize(this, Spliterator.ORDERED | Spliterator.NONNULL), false);
     }
 
-    private UrlBuilder page(UrlBuilder url, Paging paging) {
+    protected UrlBuilder page(UrlBuilder url, Paging paging) {
         if (paging != null) {
             url = urlBuilder.addParameter("after", paging.next.after);
         }
         return url;
+    }
+
+    public abstract static class RequestWrapper<M, T> {
+        private T lastResponse;
+        public void setLastResponse(T lastResponse) {
+            this.lastResponse = lastResponse;
+        }
+        public abstract M wrapRequest(M req, T resp);
     }
 }

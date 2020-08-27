@@ -69,6 +69,7 @@ public class Engagement {
         CALL,
         EMAIL,
         TASK,
-        MEETING
+        MEETING,
+        INCOMING_EMAIL
     }
 }

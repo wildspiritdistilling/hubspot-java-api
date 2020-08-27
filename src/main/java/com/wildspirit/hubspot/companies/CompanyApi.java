@@ -7,6 +7,7 @@ import com.wildspirit.hubspot.common.AbstractApi;
 import com.wildspirit.hubspot.common.CollectionResponse;
 import com.wildspirit.hubspot.common.CollectionResponseIterator;
 import com.wildspirit.hubspot.common.Paging;
+import com.wildspirit.hubspot.contact.ContactApi;
 import com.wildspirit.hubspot.search.Filter;
 import com.wildspirit.hubspot.search.FilterGroup;
 import com.wildspirit.hubspot.search.Operator;
@@ -60,7 +61,13 @@ public class CompanyApi extends AbstractApi {
 
     public Stream<Company> search(SearchCompaniesRequest req) {
         UrlBuilder url = UrlBuilder.fromString("https://api.hubapi.com/crm/v3/objects/companies/search");
-        return CollectionResponseIterator.httpPost(url, req, this, SearchCompaniesResponse.class).stream();
+        CollectionResponseIterator.RequestWrapper<SearchCompaniesRequest, SearchCompaniesResponse> wrapper = new CollectionResponseIterator.RequestWrapper<>() {
+            @Override
+            public SearchCompaniesRequest wrapRequest(SearchCompaniesRequest req, SearchCompaniesResponse resp) {
+                return new SearchCompaniesRequest(req.properties, req.filterGroups, req.sorts, resp.paging.next.after);
+            }
+        };
+        return CollectionResponseIterator.<Company, SearchCompaniesRequest, SearchCompaniesResponse>httpPost(url, req, wrapper, this, SearchCompaniesResponse.class).stream();
     }
 
     public void merge(MergeCompanyRequest req) {
@@ -112,23 +119,25 @@ public class CompanyApi extends AbstractApi {
         public final List<String> properties;
         public final List<FilterGroup> filterGroups;
         public final List<Sort> sorts;
+        public final String after;
 
-        public SearchCompaniesRequest(@JsonProperty("properties") List<String> properties, @JsonProperty("filterGroups") List<FilterGroup> filterGroups, @JsonProperty("sorts") List<Sort> sorts) {
+        public SearchCompaniesRequest(@JsonProperty("properties") List<String> properties, @JsonProperty("filterGroups") List<FilterGroup> filterGroups, @JsonProperty("sorts") List<Sort> sorts, String after) {
             this.properties = properties;
             this.filterGroups = filterGroups;
             this.sorts = sorts;
+            this.after = after;
         }
 
         public static SearchCompaniesRequest byName(String name) {
-            return new SearchCompaniesRequest(List.of("name"), List.of(new FilterGroup(List.of(new Filter("name", Operator.EQUAL_TO, name)))), List.of());
+            return new SearchCompaniesRequest(List.of("name"), List.of(new FilterGroup(List.of(new Filter("name", Operator.EQUAL_TO, name)))), List.of(), null);
         }
 
         public static SearchCompaniesRequest byEmail(String email) {
-            return new SearchCompaniesRequest(List.of("name"), List.of(new FilterGroup(List.of(new Filter("email", Operator.EQUAL_TO, email)))), List.of());
+            return new SearchCompaniesRequest(List.of("name"), List.of(new FilterGroup(List.of(new Filter("email", Operator.EQUAL_TO, email)))), List.of(), null);
         }
 
         public static SearchCompaniesRequest singleProperty(String propertyName, Object propertyValue) {
-            return new SearchCompaniesRequest(List.of("name"), List.of(new FilterGroup(List.of(new Filter(propertyName, Operator.EQUAL_TO, propertyValue)))), List.of());
+            return new SearchCompaniesRequest(List.of("name"), List.of(new FilterGroup(List.of(new Filter(propertyName, Operator.EQUAL_TO, propertyValue)))), List.of(), null);
         }
     }
 

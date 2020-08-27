@@ -72,7 +72,7 @@ public class CompanyApiTest {
 
         List<String> props = List.of("name", "phone");
         Filter filter = new Filter("name", Operator.EQUAL_TO, name);
-        List<Company> companies = hubSpot.companies().search(new SearchCompaniesRequest(props, List.of(new FilterGroup(List.of(filter))), List.of())).collect(Collectors.toList());
+        List<Company> companies = hubSpot.companies().search(new SearchCompaniesRequest(props, List.of(new FilterGroup(List.of(filter))), List.of(), null)).collect(Collectors.toList());
         Assert.assertEquals(1, companies.size());
     }
 }
