@@ -1,5 +1,6 @@
 package com.wildspirit.hubspot.companies;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wildspirit.hubspot.common.AbstractApi;
@@ -60,6 +61,11 @@ public class CompanyApi extends AbstractApi {
     public Stream<Company> search(SearchCompaniesRequest req) {
         UrlBuilder url = UrlBuilder.fromString("https://api.hubapi.com/crm/v3/objects/companies/search");
         return CollectionResponseIterator.httpPost(url, req, this, SearchCompaniesResponse.class).stream();
+    }
+
+    public void merge(MergeCompanyRequest req) {
+        UrlBuilder url = UrlBuilder.fromString(String.format("https://api.hubapi.com/companies/v2/companies/%s/merge?portalId=%s", req.parentCompanyId, req.portalId));
+        httpPut(url, req, MergeCompanyResponse.class);
     }
 
     public static class GetCompaniesRequest {
@@ -197,4 +203,20 @@ public class CompanyApi extends AbstractApi {
             this.links = links;
         }
     }
+
+    public static class MergeCompanyRequest {
+        @JsonIgnore
+        public final Long portalId;
+        @JsonIgnore
+        public final Long parentCompanyId;
+        public final Long companyIdToMerge;
+
+        public MergeCompanyRequest(Long portalId, Long parentCompanyId, Long companyIdToMerge) {
+            this.portalId = portalId;
+            this.parentCompanyId = parentCompanyId;
+            this.companyIdToMerge = companyIdToMerge;
+        }
+    }
+
+    public static class MergeCompanyResponse {}
 }

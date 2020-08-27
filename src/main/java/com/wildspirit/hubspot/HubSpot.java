@@ -6,6 +6,7 @@ import com.wildspirit.hubspot.associations.AssociationsApi;
 import com.wildspirit.hubspot.companies.CompanyApi;
 import com.wildspirit.hubspot.contact.ContactApi;
 import com.wildspirit.hubspot.engagements.EngagementApi;
+import com.wildspirit.hubspot.integrations.IntegrationsApi;
 import okhttp3.OkHttpClient;
 
 public class HubSpot {
@@ -50,5 +51,9 @@ public class HubSpot {
 
     public EngagementApi engagements() {
         return new EngagementApi(client, apiKey, mapper);
+    }
+
+    public IntegrationsApi integrations() {
+        return new IntegrationsApi(client, apiKey, mapper);
     }
 }
