@@ -13,8 +13,13 @@ import okhttp3.*;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class AbstractApi {
+
+    private static final Logger LOGGER = Logger.getLogger(AbstractApi.class.getName());
+
     protected final OkHttpClient http;
     protected final String apiKey;
     protected final ObjectMapper mapper;
@@ -192,10 +197,12 @@ public class AbstractApi {
     }
 
     private <T> T retry(Supplier<T> action) {
-        for (int i = 0; i < 3; i++) {
+        int attempts = 3;
+        for (int i = 0; i < attempts; i++) {
             try {
                 return action.get();
             } catch (TooManyRequestsException e) {
+                LOGGER.log(Level.INFO, "Retry attempt " + (i+1) + " of " + attempts);
                 try {
                     Thread.sleep(TimeUnit.MINUTES.toMillis(1));
                 } catch (InterruptedException ignored) {}
