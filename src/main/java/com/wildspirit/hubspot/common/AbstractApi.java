@@ -200,7 +200,9 @@ public class AbstractApi {
         int attempts = 3;
         for (int i = 0; i < attempts; i++) {
             try {
-                return action.get();
+                final T result = action.get();
+                LOGGER.log(Level.INFO, "Recovered at attempt " + (i+1) + " of " + attempts);
+                return result;
             } catch (TooManyRequestsException e) {
                 LOGGER.log(Level.INFO, "Retry attempt " + (i+1) + " of " + attempts);
                 try {
