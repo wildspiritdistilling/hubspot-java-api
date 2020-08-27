@@ -67,7 +67,7 @@ public class CompanyApi extends AbstractApi {
                 return new SearchCompaniesRequest(req.properties, req.filterGroups, req.sorts, resp.paging.next.after);
             }
         };
-        return CollectionResponseIterator.<Company, SearchCompaniesRequest, SearchCompaniesResponse>httpPost(url, req, wrapper, this, SearchCompaniesResponse.class).stream();
+        return CollectionResponseIterator.httpPost(url, req, wrapper, this, SearchCompaniesResponse.class).stream();
     }
 
     public void merge(MergeCompanyRequest req) {

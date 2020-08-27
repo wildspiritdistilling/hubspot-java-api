@@ -32,7 +32,7 @@ public class CollectionResponseIterator<ITEM, REQ, RESP extends CollectionRespon
         return new CollectionResponseIterator<>(urlBuilder, s -> api.httpPost(urlBuilder, req, responseType));
     }
 
-    public static <ITEM, REQ, RESP extends CollectionResponse<ITEM>> CollectionResponseIterator<ITEM, REQ, RESP> httpPost(UrlBuilder urlBuilder, CompanyApi.SearchCompaniesRequest req, RequestWrapper<CompanyApi.SearchCompaniesRequest, CompanyApi.SearchCompaniesResponse> wrapper, AbstractApi api, Class<CompanyApi.SearchCompaniesResponse> responseType) {
+    public static <ITEM, REQ, RESP extends CollectionResponse<ITEM>> CollectionResponseIterator httpPost(UrlBuilder urlBuilder, CompanyApi.SearchCompaniesRequest req, RequestWrapper<CompanyApi.SearchCompaniesRequest, CompanyApi.SearchCompaniesResponse> wrapper, AbstractApi api, Class<CompanyApi.SearchCompaniesResponse> responseType) {
         return new CollectionResponseIterator(urlBuilder, s -> {
             if (wrapper.lastResponse == null) {
                 final CompanyApi.SearchCompaniesResponse resp = api.httpPost(urlBuilder, req, responseType);
