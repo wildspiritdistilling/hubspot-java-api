@@ -128,14 +128,21 @@ public class CompanyApi extends AbstractApi {
             this.after = after;
         }
 
+        public static SearchCompaniesRequest search(List<String> properties, List<Filter> filters, List<Sort> sorts) {
+            return new SearchCompaniesRequest(properties, List.of(new FilterGroup(filters)), sorts, null);
+        }
+
+        @Deprecated
         public static SearchCompaniesRequest byName(String name) {
             return new SearchCompaniesRequest(List.of("name"), List.of(new FilterGroup(List.of(new Filter("name", Operator.EQUAL_TO, name)))), List.of(), null);
         }
 
+        @Deprecated
         public static SearchCompaniesRequest byEmail(String email) {
             return new SearchCompaniesRequest(List.of("name"), List.of(new FilterGroup(List.of(new Filter("email", Operator.EQUAL_TO, email)))), List.of(), null);
         }
 
+        @Deprecated
         public static SearchCompaniesRequest singleProperty(String propertyName, Object propertyValue) {
             return new SearchCompaniesRequest(List.of("name"), List.of(new FilterGroup(List.of(new Filter(propertyName, Operator.EQUAL_TO, propertyValue)))), List.of(), null);
         }
