@@ -76,6 +76,8 @@ public class AbstractApi {
                     throw new TooManyRequestsException(response.message());
                 case 403:
                     throw new ForbiddenException(response.message());
+                case 409:
+                    throw new HttpException.ConflictException(response.message());
                 case 200:
                 case 201:
                     return body == null ? null : mapper.readValue(body.bytes(), responseClazz);
@@ -108,6 +110,8 @@ public class AbstractApi {
                     throw new TooManyRequestsException(response.message());
                 case 403:
                     throw new ForbiddenException(response.message());
+                case 409:
+                    throw new HttpException.ConflictException(response.message());
                 case 200:
                 case 201:
                     return body == null ? null : mapper.readValue(body.bytes(), responseClazz);
@@ -142,6 +146,8 @@ public class AbstractApi {
                     throw new TooManyRequestsException(response.message());
                 case 403:
                     throw new ForbiddenException(response.message());
+                case 409:
+                    throw new HttpException.ConflictException(response.message());
                 case 200:
                 case 201:
                 case 204:
