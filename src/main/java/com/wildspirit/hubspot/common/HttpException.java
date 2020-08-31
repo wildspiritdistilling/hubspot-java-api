@@ -56,4 +56,10 @@ public class HttpException extends RuntimeException {
             super(message);
         }
     }
+
+    public static class BadGatewayException extends HttpException {
+        public BadGatewayException(String message) {
+            super(message);
+        }
+    }
 }

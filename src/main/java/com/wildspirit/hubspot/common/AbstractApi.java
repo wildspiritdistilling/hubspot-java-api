@@ -2,8 +2,8 @@ package com.wildspirit.hubspot.common;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.wildspirit.hubspot.HubSpot;
 import com.wildspirit.hubspot.HubSpotException;
+import com.wildspirit.hubspot.common.HttpException.BadGatewayException;
 import com.wildspirit.hubspot.common.HttpException.ForbiddenException;
 import com.wildspirit.hubspot.common.HttpException.TooManyRequestsException;
 import com.wildspirit.hubspot.common.HttpException.UnmappedHttpException;
@@ -49,6 +49,8 @@ public class AbstractApi {
                     return body == null ? null : mapper.readValue(body.bytes(), responseClazz);
                 case 204:
                     return null;
+                case 503:
+                    throw new BadGatewayException(response.message());
                 default:
                     String bodyString  = body == null ? "" : body.string();
                     throw new HttpException("Error " + response.code() + " " + bodyString);
@@ -83,6 +85,8 @@ public class AbstractApi {
                     return body == null ? null : mapper.readValue(body.bytes(), responseClazz);
                 case 204:
                     return null;
+                case 503:
+                    throw new BadGatewayException(response.message());
                 default:
                     String bodyString  = body == null ? "" : body.string();
                     throw new UnmappedHttpException(response.code(), bodyString);
@@ -117,6 +121,8 @@ public class AbstractApi {
                     return body == null ? null : mapper.readValue(body.bytes(), responseClazz);
                 case 204:
                     return null;
+                case 503:
+                    throw new BadGatewayException(response.message());
                 default:
                     String bodyString  = body == null ? "" : body.string();
                     throw new UnmappedHttpException(response.code(), bodyString);
@@ -152,6 +158,8 @@ public class AbstractApi {
                 case 201:
                 case 204:
                     return;
+                case 503:
+                    throw new BadGatewayException(response.message());
                 default:
                     String bodyString  = body == null ? "" : body.string();
                     throw new UnmappedHttpException(response.code(), bodyString);
@@ -183,6 +191,8 @@ public class AbstractApi {
                     return body == null ? null : mapper.readValue(body.bytes(), responseClazz);
                 case 204:
                     return null;
+                case 503:
+                    throw new BadGatewayException(response.message());
                 default:
                     String bodyString  = body == null ? "" : body.string();
                     throw new UnmappedHttpException(response.code(), bodyString);
@@ -207,9 +217,9 @@ public class AbstractApi {
         for (int i = 0; i < attempts; i++) {
             try {
                 final T result = action.get();
-                LOGGER.log(Level.INFO, "Recovered at attempt " + (i+1) + " of " + attempts);
+                LOGGER.log(Level.INFO, "Recovered at attempt " + (i + 1) + " of " + attempts);
                 return result;
-            } catch (TooManyRequestsException e) {
+            } catch (TooManyRequestsException | BadGatewayException e) {
                 LOGGER.log(Level.INFO, "Retry attempt " + (i+1) + " of " + attempts);
                 try {
                     Thread.sleep(TimeUnit.MINUTES.toMillis(1));
