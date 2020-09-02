@@ -217,7 +217,9 @@ public class AbstractApi {
         for (int i = 0; i < attempts; i++) {
             try {
                 final T result = action.get();
-                LOGGER.log(Level.INFO, "Recovered at attempt " + (i + 1) + " of " + attempts);
+                if (i == 0) {
+                    LOGGER.log(Level.INFO, "Recovered at attempt " + (i + 1) + " of " + attempts);
+                }
                 return result;
             } catch (TooManyRequestsException | BadGatewayException e) {
                 LOGGER.log(Level.INFO, "Retry attempt " + (i+1) + " of " + attempts);
