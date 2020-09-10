@@ -4,7 +4,7 @@
 
     <groupId>com.wildspirit.hubspot</groupId>
     <artifactId>hubspot-java-api</artifactId>
-    <version>0.18-SNAPSHOT</version>
+    <version>0.18</version>
     <build>
         <plugins>
             <plugin>
@@ -50,7 +50,7 @@
     <scm>
         <connection>scm:git:git@github.com:wildspiritdistilling/hubspot-java-api.git</connection>
         <developerConnection>scm:git:git@github.com:wildspiritdistilling/hubspot-java-api.git</developerConnection>
-        <tag>master</tag>
+        <tag>hubspot-java-api-0.18</tag>
     </scm>
 
     <distributionManagement>
