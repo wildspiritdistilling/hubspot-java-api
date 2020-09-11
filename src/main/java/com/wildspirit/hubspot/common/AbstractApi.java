@@ -218,13 +218,13 @@ public class AbstractApi {
             try {
                 final T result = action.get();
                 if (i > 0) {
-                    LOGGER.log(Level.INFO, "Recovered at attempt " + (i + 1) + " of " + attempts);
+                    LOGGER.log(Level.FINE, "Recovered at attempt " + (i + 1) + " of " + attempts);
                 }
                 return result;
             } catch (TooManyRequestsException | BadGatewayException e) {
-                LOGGER.log(Level.INFO, "Retry attempt " + (i+1) + " of " + attempts);
+                LOGGER.log(Level.FINE, "Retry attempt " + (i+1) + " of " + attempts);
                 try {
-                    Thread.sleep(TimeUnit.MINUTES.toMillis(1));
+                    Thread.sleep(TimeUnit.SECONDS.toMillis(30));
                 } catch (InterruptedException ignored) {}
             }
         }
