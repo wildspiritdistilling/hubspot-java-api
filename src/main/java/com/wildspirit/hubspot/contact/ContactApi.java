@@ -13,6 +13,7 @@ import okhttp3.OkHttpClient;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.StringJoiner;
 import java.util.stream.Stream;
 
 public final class ContactApi extends AbstractApi {
@@ -41,6 +42,16 @@ public final class ContactApi extends AbstractApi {
 
     public Contact update(UpdateContactRequest req) {
         return httpPatch(UrlBuilder.fromString("https://api.hubapi.com/crm/v3/objects/contacts/" + req.id), req, Contact.class);
+    }
+
+    public Contact get(GetContactRequest req) {
+        UrlBuilder builder = UrlBuilder.fromString("https://api.hubapi.com/crm/v3/objects/contacts/" + req.id);
+        if (req.properties != null) {
+            StringJoiner joiner = new StringJoiner(",");
+            req.properties.forEach(joiner::add);
+            builder = builder.addParameter("properties", joiner.toString());
+        }
+        return httpGet(builder, Contact.class);
     }
 
     public UpdateContactsBatchResponse update(UpdateContactsBatchRequest req) {
@@ -158,6 +169,16 @@ public final class ContactApi extends AbstractApi {
             this.statedAt = statedAt;
             this.completedAt = completedAt;
             this.links = links;
+        }
+    }
+
+    public static class GetContactRequest {
+        public final String id;
+        public final List<String> properties;
+
+        public GetContactRequest(String id, List<String> properties) {
+            this.id = id;
+            this.properties = properties;
         }
     }
 }
