@@ -173,10 +173,10 @@ public final class ContactApi extends AbstractApi {
     }
 
     public static class GetContactRequest {
-        public final String id;
+        public final Long id;
         public final List<String> properties;
 
-        public GetContactRequest(String id, List<String> properties) {
+        public GetContactRequest(Long id, List<String> properties) {
             this.id = id;
             this.properties = properties;
         }
