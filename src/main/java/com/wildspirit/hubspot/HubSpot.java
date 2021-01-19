@@ -1,7 +1,11 @@
 package com.wildspirit.hubspot;
 
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.databind.ser.std.DateSerializer;
 import com.wildspirit.hubspot.associations.AssociationsApi;
 import com.wildspirit.hubspot.companies.CompanyApi;
 import com.wildspirit.hubspot.contact.ContactApi;
@@ -9,10 +13,21 @@ import com.wildspirit.hubspot.engagements.EngagementApi;
 import com.wildspirit.hubspot.integrations.IntegrationsApi;
 import okhttp3.OkHttpClient;
 
+import java.io.IOException;
+import java.text.DateFormat;
+import java.time.*;
+import java.util.Date;
+import java.util.TimeZone;
+
 public class HubSpot {
 
-    private static final ObjectMapper mapper = new ObjectMapper()
-            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    static final SimpleModule DATE_MODULE = new SimpleModule()
+            .addSerializer(Date.class, new DateSerializerImpl());
+
+    static final ObjectMapper mapper = new ObjectMapper()
+            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+            .setTimeZone(TimeZone.getTimeZone(ZoneId.of("UTC")))
+            .registerModule(DATE_MODULE);
 
     private final OkHttpClient client = new OkHttpClient();
 
@@ -55,5 +70,25 @@ public class HubSpot {
 
     public IntegrationsApi integrations() {
         return new IntegrationsApi(client, apiKey, mapper);
+    }
+
+    /**
+     * Makes sure we handle everything with midnight dates, which HubSpot annoyingly wants us to do!
+     */
+    private static class DateSerializerImpl extends DateSerializer {
+        public DateSerializerImpl() {}
+
+        public DateSerializerImpl(Boolean useTimestamp, DateFormat customFormat) {
+            super(useTimestamp, customFormat);
+        }
+
+        @Override
+        public void serialize(Date value, JsonGenerator g, SerializerProvider provider) throws IOException {
+            LocalTime midnight = LocalTime.MIDNIGHT;
+            LocalDate today = LocalDate.ofInstant(value.toInstant(), ZoneId.of(ZoneOffset.UTC.getId()));
+            LocalDateTime todayMidnight = LocalDateTime.of(today, midnight);
+            value = Date.from(todayMidnight.toInstant(ZoneOffset.UTC));
+            super.serialize(value, g, provider);
+        }
     }
 }
